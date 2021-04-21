@@ -58,6 +58,7 @@ namespace VirtualPet
         IntPtr currentWindowHandle;
         IntPtr colidedWindowHandle;
         bool walkingOnTaskbar;
+        Random rnd = new Random();
         public PetForm()
         {
             InitializeComponent();
@@ -66,6 +67,7 @@ namespace VirtualPet
             WalkOnMultipleScreens = false;
             walkingOnTaskbar = false;
             currentScreen = Screen.FromControl(this);
+            //panel1.BackColor = Color.FromArgb(rnd.Next(0, 256), rnd.Next(0, 256), rnd.Next(0, 256));
         }
 
         public void Fall()
@@ -235,6 +237,10 @@ namespace VirtualPet
                 {
                     return true;
                 }
+                if(sb.ToString() == Text)
+                {
+                    return true;
+                }
                 if (NativeMethods.IsZoomed(hWnd))
                 {
                     return true;
@@ -366,7 +372,7 @@ namespace VirtualPet
                 case PetState.Neutral:
                     {
                         State = PetState.Walking;
-                        Random rnd = new Random();
+                        
                         int val = rnd.Next(1, 10);
                         walkingDirection = val < 5 ? -1 : 1;
                     }
