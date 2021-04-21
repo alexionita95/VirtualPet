@@ -49,5 +49,12 @@ namespace VirtualPet
 
             
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            PetForm pet = new PetForm();
+            pet.Show();
+            pet.Fall();
+        }
     }
 }
