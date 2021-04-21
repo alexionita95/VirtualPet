@@ -61,7 +61,6 @@
             this.Controls.Add(this.button1);
             this.Name = "MainForm";
             this.Text = "Virtual Johnny";
-            this.TopMost = true;
             this.ResumeLayout(false);
 
         }
