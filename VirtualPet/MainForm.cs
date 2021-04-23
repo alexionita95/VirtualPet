@@ -56,5 +56,32 @@ namespace VirtualPet
             pet.Show();
             pet.Fall();
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            int x = 0;
+            int y = 0;
+            int widh = 0;
+            int height = 0;
+            foreach(Screen s in Screen.AllScreens)
+            {
+                Console.WriteLine($"{s.Bounds} {s.WorkingArea}");
+                widh += s.Bounds.Width;
+                if (height == 0 || s.WorkingArea.Height < height)
+                    height = s.WorkingArea.Height;
+                if (s.Bounds.X < x)
+                    x = s.Bounds.X;
+                if(s.Bounds.Y < y)
+                {
+                    y = s.Bounds.Y;
+                }
+
+            }
+            this.Size = new Size(widh, height);
+            this.Location = new Point(x, y);
+            Console.WriteLine(this.Location);
+            this.Refresh();
+            this.Update();
+        }
     }
 }
