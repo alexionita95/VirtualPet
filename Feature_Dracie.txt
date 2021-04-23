@@ -1,0 +1,4 @@
+-CPU Usage reactions
+-RAM Usage reactions
+-HDD Usage reactions
+-Network Usage reactions

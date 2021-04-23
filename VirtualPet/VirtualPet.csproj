@@ -60,11 +60,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DialogForm.cs">
-      <SubType>Form</SubType>
+    <Compile Include="DialogControl.cs">
+      <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="DialogForm.Designer.cs">
-      <DependentUpon>DialogForm.cs</DependentUpon>
+    <Compile Include="DialogControl.Designer.cs">
+      <DependentUpon>DialogControl.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -81,8 +81,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="DialogForm.resx">
-      <DependentUpon>DialogForm.cs</DependentUpon>
+    <EmbeddedResource Include="DialogControl.resx">
+      <DependentUpon>DialogControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

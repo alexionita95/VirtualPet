@@ -1,0 +1,4 @@
+TO DO:
+Rework collision system
+Figure out how top window works
+Remove duplicate code
