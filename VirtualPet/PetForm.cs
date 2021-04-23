@@ -12,7 +12,7 @@ namespace VirtualPet
 {
     public partial class PetForm : Form
     {
-        int CollisionOffset = 10;
+        
 
         public enum PetState
         {
@@ -23,16 +23,7 @@ namespace VirtualPet
             Dragging,
             Sitting
         }
-        [Flags]
-        enum CollisionDirection
-        {
-            None = 0,
-            Left = 1 << 1,
-            Right = 1 << 2,
-            Top = 1 << 3,
-            Bottom = 1 << 4,
-            All = ~(~0 << 5)
-        };
+
         public PetState State { get; set; }
         public bool WalkOnWindows { get; set; }
         public bool WalkOnMultipleScreens { get; set; }
@@ -143,92 +134,15 @@ namespace VirtualPet
         {
             State = PetState.Sitting;
         }
-        bool isBetween(int value, int min, int max)
-        {
-            if (min > value || max < value)
-            {
-                return false;
-            }
-            return true;
-        }
-        Rectangle GetRectangleFromNative(NativeMethods.RECT rect)
-        {
-            return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
-        }
-        bool isInLimits(Rectangle collider, Rectangle obstacle, CollisionDirection direction)
-        {
-            if (direction.HasFlag(CollisionDirection.Left) && isBetween(collider.Right, obstacle.Left, obstacle.Left + CollisionOffset))
-            {
-                return true;
-            }
 
-            if (direction.HasFlag(CollisionDirection.Right) && isBetween(collider.Left, obstacle.Right - CollisionOffset, obstacle.Right))
-            {
-                return true;
-            }
-
-            if (direction.HasFlag(CollisionDirection.Top) && isBetween(collider.Bottom, obstacle.Top, obstacle.Top + CollisionOffset))
-            {
-                return true;
-            }
-
-            if (direction.HasFlag(CollisionDirection.Bottom) && isBetween(collider.Top, obstacle.Bottom - CollisionOffset, obstacle.Bottom))
-            {
-                return true;
-            }
-            return false;
-        }
-        CollisionDirection CheckCollision(Rectangle collider, Rectangle obstacle, CollisionDirection direction, bool isInside = false)
-        {
-            CollisionDirection result = CollisionDirection.None;
-            if (isBetween(collider.Top, obstacle.Top, obstacle.Bottom) || isBetween(collider.Bottom, obstacle.Top, obstacle.Bottom))
-            {
-                if (direction.HasFlag(CollisionDirection.Left))
-                {
-                    if ((!isInside && isBetween(collider.Right, obstacle.Left, obstacle.Right)) || (isInside && isBetween(collider.Left, obstacle.Left - collider.Width, obstacle.Left)))
-                    {
-                        result |= CollisionDirection.Left;
-                    }
-                }
-
-                if (direction.HasFlag(CollisionDirection.Right))
-                {
-                    if ((!isInside && isBetween(collider.Left, obstacle.Left, obstacle.Right)) || (isInside && isBetween(collider.Right, obstacle.Right, collider.Width + obstacle.Right)))
-                    {
-                        result |= CollisionDirection.Right;
-                    }
-                }
-
-            }
-
-            if (isBetween(collider.Left, obstacle.Left, obstacle.Right) || isBetween(collider.Right, obstacle.Left, obstacle.Right))
-            {
-                if (direction.HasFlag(CollisionDirection.Top))
-                {
-                    if ((!isInside && isBetween(collider.Bottom, obstacle.Top, obstacle.Bottom)) || (isInside && isBetween(collider.Top, obstacle.Top - collider.Width, obstacle.Top)))
-                    {
-                        result |= CollisionDirection.Top;
-                    }
-                }
-
-                if (direction.HasFlag(CollisionDirection.Bottom))
-                {
-                    if ((!isInside && isBetween(collider.Top, obstacle.Top, obstacle.Bottom)) || (isInside && isBetween(collider.Bottom, obstacle.Bottom, collider.Height + collider.Bottom)))
-                    {
-                        result |= CollisionDirection.Bottom;
-                    }
-                }
-
-            }
-            return result;
-        }
+       
         CollisionDirection HitMyBounds()
         {
-            return CheckCollision(petPanel.Bounds, new Rectangle(0, 0, Width, Height), CollisionDirection.Left | CollisionDirection.Right, true);
+            return Collisions.CheckCollision(petPanel.Bounds, new Rectangle(0, 0, Width, Height), CollisionDirection.Left | CollisionDirection.Right, true);
         }
         CollisionDirection HitScreenBounds()
         {
-            return CheckCollision(PetBounds, currentScreen.Bounds, CollisionDirection.Left | CollisionDirection.Right, true);
+            return Collisions.CheckCollision(PetBounds, currentScreen.Bounds, CollisionDirection.Left | CollisionDirection.Right, true);
         }
         string RectToString(NativeMethods.RECT rect)
         {
@@ -277,8 +191,8 @@ namespace VirtualPet
                 {
                     NativeMethods.GetWindowText(nextWindow, sb, 128);
                     NativeMethods.GetWindowRect(new System.Runtime.InteropServices.HandleRef(this, nextWindow), out rct);
-                    CollisionDirection windowCollision = CheckCollision(GetRectangleFromNative(rctO), GetRectangleFromNative(rct), CollisionDirection.All);
-                    CollisionDirection myCollision = CheckCollision(PetBounds, GetRectangleFromNative(rct), CollisionDirection.All);
+                    CollisionDirection windowCollision = Collisions.CheckCollision(Collisions.GetRectangleFromNative(rctO), Collisions.GetRectangleFromNative(rct), CollisionDirection.All);
+                    CollisionDirection myCollision = Collisions.CheckCollision(PetBounds, Collisions.GetRectangleFromNative(rct), CollisionDirection.All);
                     if (NativeMethods.IsZoomed(nextWindow) && windowCollision != CollisionDirection.None && myCollision != CollisionDirection.None && sb.Length != 0)
                     {
                         return true;
@@ -341,9 +255,9 @@ namespace VirtualPet
                     return true;
                 }
                 //Console.WriteLine($"{sb} {RectToString(rect)}");
-                CollisionDirection collides = CheckCollision(PetBounds, GetRectangleFromNative(rect), direction);
+                CollisionDirection collides = Collisions.CheckCollision(PetBounds, Collisions.GetRectangleFromNative(rect), direction);
                 //if ()
-                if (collides != CollisionDirection.None && isInLimits(PetBounds, GetRectangleFromNative(rect), collides))
+                if (collides != CollisionDirection.None && Collisions.isInLimits(PetBounds, Collisions.GetRectangleFromNative(rect), collides))
                 {
                     currentWindowHandle = hWnd;
                     if (!checkTopWindow())
@@ -353,7 +267,7 @@ namespace VirtualPet
                             colidedWindowHandle = hWnd;
                             currentWindowHandle = hWnd;
                             currentWindow = rect;
-                            PutMeOnEdge(GetRectangleFromNative(currentWindow), collides, bounce, false);
+                            PutMeOnEdge(Collisions.GetRectangleFromNative(currentWindow), collides, bounce, false);
                             //StayOnWindow(currentWindow, collides);
                         }
                         if (direction.HasFlag(CollisionDirection.Left) || direction.HasFlag(CollisionDirection.Right))
@@ -455,7 +369,7 @@ namespace VirtualPet
                 }
             }
             Point p = new Point(PetRealPosition.X, PetRealPosition.Y);
-            if (!isInLimits(PetBounds, bounds, direction))
+            if (!Collisions.isInLimits(PetBounds, bounds, direction))
             {
                 return;
             }
@@ -483,13 +397,13 @@ namespace VirtualPet
             {
                 case CollisionDirection.Left:
                     {
-                        p.X += (CollisionOffset + 1);
+                        p.X += (Collisions.CollisionOffset + 1);
                         walkingDirection = 1;
                     }
                     break;
                 case CollisionDirection.Right:
                     {
-                        p.X -= (CollisionOffset + 1);
+                        p.X -= (Collisions.CollisionOffset + 1);
                         walkingDirection = -1;
                     }
                     break;

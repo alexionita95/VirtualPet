@@ -11,7 +11,7 @@ namespace VirtualPet
     /// <summary>
     /// Native methods for the windows detection functionality. User32.dll is used for this.
     /// </summary>
-    internal static class NativeMethods
+    public static class NativeMethods
     {
 
         [DllImport("user32.dll", SetLastError = true)]
