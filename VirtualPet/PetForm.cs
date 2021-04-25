@@ -27,7 +27,7 @@ namespace VirtualPet
 
                 if (Name.IndexOf("child") == 0)
                 {
-                    cp.ExStyle |= 0x08000000;   //WS_EX_NOACTIVATE  <- prevent focus when created
+                    //cp.ExStyle |= 0x08000000;   //WS_EX_NOACTIVATE  <- prevent focus when created
                 }
                 return cp;
             }
@@ -47,7 +47,7 @@ namespace VirtualPet
         IntPtr vWindow;
         bool walkingOnTaskbar;
         Random rnd = new Random();
-        Point PetRealPosition = new Point();
+        public Point PetRealPosition { get; set; } = new Point();
         Rectangle PetBounds = new Rectangle();
         CollisionDirection climbDirection;
         int walkingDirection = 1;
@@ -93,8 +93,7 @@ namespace VirtualPet
 
         private void UpdateRealPosition()
         {
-            PetRealPosition.X = Location.X + GetPetLocation().X;
-            PetRealPosition.Y = Location.Y + GetPetLocation().Y;
+            PetRealPosition = new Point(Location.X + GetPetLocation().X, Location.Y + GetPetLocation().Y);
             PetBounds = new Rectangle(PetRealPosition.X, PetRealPosition.Y, petPanel.Width, petPanel.Height);
         }
 
@@ -134,6 +133,11 @@ namespace VirtualPet
             this.Refresh();
             this.Update();
         }
+        public void SpawnDialog(UserControl dialog)
+        {
+            Controls.Add(dialog);
+            dialog.Show();
+        }
 
         public void Fall()
         {
@@ -169,6 +173,7 @@ namespace VirtualPet
                     if (CollidesWithPet((Toy)t))
                     {
                         Console.WriteLine("Yay I found me a toy");
+                        ((Toy)t).ExecuteAction();
                         t.Hide();
                         Controls.Remove(t);
                     }
