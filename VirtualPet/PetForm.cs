@@ -7,29 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using VirtualPet.Core;
 
 namespace VirtualPet
 {
     public partial class PetForm : Form
     {
-        
-
-        public enum PetState
-        {
-            Falling,
-            Neutral,
-            Walking,
-            Climbing,
-            Dragging,
-            Sitting
-        }
-
-        public PetState State { get; set; }
-        public bool WalkOnWindows { get; set; }
-        public bool WalkOnMultipleScreens { get; set; }
-        public bool AllowClimbing { get; set; }
-        public int FallSpeed { get; set; }
-        public int MoveSpeed { get; set; }
         protected override CreateParams CreateParams
         {
             get
@@ -53,6 +36,9 @@ namespace VirtualPet
         {
             get { return true; }
         }
+
+        public PetInfo Info { get; set; }
+
         Screen currentScreen;
         NativeMethods.RECT currentWindow;
         IntPtr currentWindowHandle;
@@ -60,36 +46,67 @@ namespace VirtualPet
         IntPtr hWindow;
         IntPtr vWindow;
         bool walkingOnTaskbar;
-        DialogControl dialog;
         Random rnd = new Random();
         Point PetRealPosition = new Point();
         Rectangle PetBounds = new Rectangle();
         CollisionDirection climbDirection;
-        int initialFallSpeed;
+        int walkingDirection = 1;
+
         public PetForm()
         {
             InitializeComponent();
-            WalkOnWindows = true;
-            WalkOnMultipleScreens = true;
-            AllowClimbing = true;
+            Info = new PetInfo();
+            Info.WalkOnWindows = true;
+            Info.WalkOnMultipleScreens = true;
+            Info.AllowClimbing = true;
             walkingOnTaskbar = false;
-            FallSpeed = 10;
-            MoveSpeed = 3;
-            initialFallSpeed = FallSpeed;
-            //panel1.BackColor = Color.FromArgb(rnd.Next(0, 256), rnd.Next(0, 256), rnd.Next(0, 256));
-            dialog = new DialogControl();
-            this.Controls.Add(dialog);
-            dialog.Hide();
+            Info.FallSpeed = 10;
+            Info.MoveSpeed = 3;
             ResizeForm();
             UpdateRealPosition();
 
         }
 
+        public PetForm(PetInfo info)
+        {
+            InitializeComponent();
+            Info = info;
+            walkingOnTaskbar = false;
+            ResizeForm();
+            UpdateRealPosition();
+
+        }
+
+        public void SetPetLocation(Point p)
+        {
+            petPanel.Location = p;
+        }
+
+        public Point GetPetLocation()
+        {
+            return new Point(petPanel.Location.X, petPanel.Location.Y);
+        }
+        Point ScreenToWorld(int x, int y)
+        {
+            return new Point(x - this.Location.X, y - this.Location.Y);
+        }
+
         private void UpdateRealPosition()
         {
-            PetRealPosition.X = Location.X + petPanel.Location.X;
-            PetRealPosition.Y = Location.Y + petPanel.Location.Y;
+            PetRealPosition.X = Location.X + GetPetLocation().X;
+            PetRealPosition.Y = Location.Y + GetPetLocation().Y;
             PetBounds = new Rectangle(PetRealPosition.X, PetRealPosition.Y, petPanel.Width, petPanel.Height);
+        }
+
+        private void ResetState()
+        {
+            currentWindowHandle = IntPtr.Zero;
+            colidedWindowHandle = IntPtr.Zero;
+            hWindow = IntPtr.Zero;
+            vWindow = IntPtr.Zero;
+            walkingOnTaskbar = false;
+            currentWindow = new NativeMethods.RECT();
+            Info.State = PetInfo.PetState.Falling;
         }
 
         private void ResizeForm()
@@ -124,18 +141,59 @@ namespace VirtualPet
 
             int x = 10;//currentScreen.Bounds.Width / 2 - this.Width / 2;
             int y = 0;
-            petPanel.Location = new Point(x, y);
+            SetPetLocation(new Point(x, y));
             petPanel.Visible = true;
-            State = PetState.Falling;
+            Info.State = PetInfo.PetState.Falling;
             currentScreen = Screen.FromControl(petPanel);
             animTimer.Start();
         }
         public void Stay()
         {
-            State = PetState.Sitting;
+            Info.State = PetInfo.PetState.Sitting;
+        }
+        public void SpawnToy(Toy t)
+        {
+            this.Controls.Add(t);
+            t.Location = new Point(0, 0);
+            t.Show();
         }
 
-       
+        void UpdateToys()
+        {
+            foreach (Control t in Controls)
+            {
+                if (t is Toy)
+                {
+                    ((Toy)t).UpdateState();
+                    CheckToyHitBottom((Toy)t);
+                    if (CollidesWithPet((Toy)t))
+                    {
+                        Console.WriteLine("Yay I found me a toy");
+                        t.Hide();
+                        Controls.Remove(t);
+                    }
+
+
+                }
+            }
+        }
+        void CheckToyHitBottom(Toy t)
+        {
+            if (t.Location.Y + t.Height > this.Height)
+            {
+                t.OnBottom = true;
+                t.Location = new Point(t.Location.X, this.Height - t.Height);
+            }
+        }
+        bool CollidesWithPet(Toy t)
+        {
+            if (Collisions.CheckCollision(t.Bounds, petPanel.Bounds, CollisionDirection.All) != CollisionDirection.None)
+            {
+                return true;
+            }
+            return false;
+        }
+
         CollisionDirection HitMyBounds()
         {
             return Collisions.CheckCollision(petPanel.Bounds, new Rectangle(0, 0, Width, Height), CollisionDirection.Left | CollisionDirection.Right, true);
@@ -143,10 +201,6 @@ namespace VirtualPet
         CollisionDirection HitScreenBounds()
         {
             return Collisions.CheckCollision(PetBounds, currentScreen.Bounds, CollisionDirection.Left | CollisionDirection.Right, true);
-        }
-        string RectToString(NativeMethods.RECT rect)
-        {
-            return $"Top: {rect.Top} Bottom: {rect.Bottom} Left: {rect.Left} Right: {rect.Right}";
         }
         bool isCurrentWindowHere()
         {
@@ -211,7 +265,7 @@ namespace VirtualPet
 
         bool checkWindowCollision(CollisionDirection direction = CollisionDirection.None, bool bounce = false)
         {
-            bool colided = false;
+            bool collided = false;
             NativeMethods.EnumWindows(delegate (IntPtr hWnd, int lParam)
             {
 
@@ -254,7 +308,7 @@ namespace VirtualPet
                 {
                     return true;
                 }
-                //Console.WriteLine($"{sb} {RectToString(rect)}");
+
                 CollisionDirection collides = Collisions.CheckCollision(PetBounds, Collisions.GetRectangleFromNative(rect), direction);
                 //if ()
                 if (collides != CollisionDirection.None && Collisions.isInLimits(PetBounds, Collisions.GetRectangleFromNative(rect), collides))
@@ -268,7 +322,6 @@ namespace VirtualPet
                             currentWindowHandle = hWnd;
                             currentWindow = rect;
                             PutMeOnEdge(Collisions.GetRectangleFromNative(currentWindow), collides, bounce, false);
-                            //StayOnWindow(currentWindow, collides);
                         }
                         if (direction.HasFlag(CollisionDirection.Left) || direction.HasFlag(CollisionDirection.Right))
                         {
@@ -279,7 +332,7 @@ namespace VirtualPet
                         {
                             vWindow = colidedWindowHandle;
                         }
-                        colided = true;
+                        collided = true;
 
                     }
                 }
@@ -288,13 +341,10 @@ namespace VirtualPet
                 return true;
             }, IntPtr.Zero);
 
-            return colided;
+            return collided;
         }
 
-        Point ScreenToWorld(int x, int y)
-        {
-            return new Point(x - this.Location.X, y - this.Location.Y);
-        }
+
         bool CanWalk()
         {
             if (walkingOnTaskbar)
@@ -312,35 +362,23 @@ namespace VirtualPet
             }
             return true;
         }
-        void WalkAround(int dir)
+
+        public void WalkAround(int dir)
         {
-            Point p = new Point(petPanel.Location.X, petPanel.Location.Y);
-            if (State == PetState.Walking)
+            Point p = GetPetLocation();
+            if (Info.State == PetInfo.PetState.Walking)
             {
                 if (!CanWalk())
                 {
                     ResetState();
                     return;
                 }
-                p.X += dir * MoveSpeed;
-                petPanel.Location = p;
+                p.X += dir * Info.MoveSpeed;
+                SetPetLocation(p);
             }
         }
-        bool CanClimb()
-        {
-            if (!isCurrentWindowHere())
-            {
 
-                return false;
-            }
-            if (currentWindow.Bottom < PetBounds.Top ||
-                currentWindow.Top > PetBounds.Bottom)
-            {
-                return false;
-            }
-            return true;
-        }
-        bool AmIOnTop()
+        public bool AmIOnTop()
         {
             if (PetRealPosition.Y + petPanel.Height <= currentWindow.Top)
             {
@@ -387,11 +425,11 @@ namespace VirtualPet
                 p.Y = bounds.Top - verticalOffset;
             }
 
-            petPanel.Location = ScreenToWorld(p.X, p.Y);
+            SetPetLocation(ScreenToWorld(p.X, p.Y));
         }
         void PutMeOnTop()
         {
-            Point p = new Point(PetRealPosition.X, PetRealPosition.Y - 2);
+            Point p = new Point(PetRealPosition.X, PetRealPosition.Y);
 
             switch (climbDirection)
             {
@@ -408,48 +446,62 @@ namespace VirtualPet
                     }
                     break;
             }
-            p = petPanel.Location = ScreenToWorld(p.X, p.Y);
-            petPanel.Location = p;
+            p = ScreenToWorld(p.X, p.Y);
+            SetPetLocation(p);
             UpdateRealPosition();
+        }
+        public bool CanClimb()
+        {
+            if (!isCurrentWindowHere())
+            {
+
+                return false;
+            }
+            if (currentWindow.Bottom < PetBounds.Top ||
+                currentWindow.Top > PetBounds.Bottom)
+            {
+                return false;
+            }
+            return true;
         }
         void Climb()
         {
-            Point p = new Point(petPanel.Location.X, petPanel.Location.Y);
+            Point p = GetPetLocation();
             if (!CanClimb())
             {
                 return;
             }
-            p.Y -= MoveSpeed;
-            petPanel.Location = p;
+            p.Y -= Info.MoveSpeed;
+            SetPetLocation(p);
         }
-        int walkingDirection = 1;
+
         private void animTimer_Tick(object sender, EventArgs e)
         {
             currentScreen = Screen.FromControl(petPanel);
-            if (State == PetState.Dragging || State == PetState.Sitting)
+            if (Info.State == PetInfo.PetState.Dragging || Info.State == PetInfo.PetState.Sitting)
             {
                 return;
             }
-            Point p = new Point(petPanel.Location.X, petPanel.Location.Y);
+            Point p = GetPetLocation();
             if (!isCurrentWindowHere() && !walkingOnTaskbar)
             {
                 ResetState();
             }
-            switch (State)
+            switch (Info.State)
             {
-                case PetState.Falling:
+                case PetInfo.PetState.Falling:
                     {
                         if (!walkingOnTaskbar)
                         {
-                            p.Y += FallSpeed;
-                            petPanel.Location = p;
-                            if (WalkOnWindows)
+                            p.Y += Info.FallSpeed;
+                            SetPetLocation(p);
+                            if (Info.WalkOnWindows)
                             {
                                 if (checkWindowCollision(CollisionDirection.Top))
                                 {
-                                    if (State != PetState.Neutral)
+                                    if (Info.State != PetInfo.PetState.Neutral)
                                     {
-                                        State = PetState.Neutral;
+                                        Info.State = PetInfo.PetState.Neutral;
                                     }
                                 }
                             }
@@ -457,20 +509,20 @@ namespace VirtualPet
                             {
                                 walkingOnTaskbar = true;
                                 p.Y = this.Height - petPanel.Height;
-                                State = PetState.Neutral;
-                                petPanel.Location = p;
+                                Info.State = PetInfo.PetState.Neutral;
+                                SetPetLocation(p);
                             }
                         }
                     }
                     break;
-                case PetState.Neutral:
+                case PetInfo.PetState.Neutral:
                     {
-                        State = PetState.Walking;
+                        Info.State = PetInfo.PetState.Walking;
                     }
                     break;
-                case PetState.Walking:
+                case PetInfo.PetState.Walking:
                     {
-                        if (WalkOnMultipleScreens)
+                        if (Info.WalkOnMultipleScreens)
                         {
                             CollisionDirection direction = HitMyBounds();
                             if (direction != CollisionDirection.None)
@@ -490,7 +542,7 @@ namespace VirtualPet
                                 walkingDirection *= -1;
                             }
                         }
-                        if (WalkOnWindows)
+                        if (Info.WalkOnWindows)
                         {
                             if (!checkWindowCollision(CollisionDirection.Top) && !walkingOnTaskbar)
                             {
@@ -498,9 +550,9 @@ namespace VirtualPet
                             }
                             if (checkWindowCollision(CollisionDirection.Left | CollisionDirection.Right, true))
                             {
-                                if (AllowClimbing && hWindow != vWindow)
+                                if (Info.AllowClimbing && hWindow != vWindow)
                                 {
-                                    State = PetState.Climbing;
+                                    Info.State = PetInfo.PetState.Climbing;
                                 }
                                 else
                                 {
@@ -514,11 +566,11 @@ namespace VirtualPet
                         WalkAround(walkingDirection);
                     }
                     break;
-                case PetState.Dragging:
+                case PetInfo.PetState.Dragging:
                     break;
-                case PetState.Sitting:
+                case PetInfo.PetState.Sitting:
                     return;
-                case PetState.Climbing:
+                case PetInfo.PetState.Climbing:
                     {
                         Climb();
                         if (checkWindowCollision(CollisionDirection.Bottom) && !AmIOnTop())
@@ -538,29 +590,19 @@ namespace VirtualPet
                     break;
             }
             UpdateRealPosition();
-            //Console.WriteLine(PetRealPosition);
-             DialogFollowMe();
+            UpdateToys();
         }
-        private void ResetState()
-        {
-            currentWindowHandle = IntPtr.Zero;
-            colidedWindowHandle = IntPtr.Zero;
-            hWindow = IntPtr.Zero;
-            vWindow = IntPtr.Zero;
-            walkingOnTaskbar = false;
-            currentWindow = new NativeMethods.RECT();
-            State = PetState.Falling;
-        }
+
         int lastX;
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
-            lastX = petPanel.Location.X;
-            State = PetState.Dragging;
+            lastX = GetPetLocation().X;
+            Info.State = PetInfo.PetState.Dragging;
         }
 
         private void panel1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (lastX < petPanel.Location.X)
+            if (lastX < GetPetLocation().X)
             {
                 walkingDirection = 1;
             }
@@ -579,7 +621,6 @@ namespace VirtualPet
                 Stay();
             }
             UpdateRealPosition();
-            DialogFollowMe();
         }
         Point precpos;
         private void panel1_MouseMove(object sender, MouseEventArgs e)
@@ -599,24 +640,6 @@ namespace VirtualPet
                     petPanel.Location = new Point(petPanel.Location.X, 0);
                 }
             }
-        }
-        void DialogFollowMe()
-        {
-            if (dialog.Visible)
-            {
-                dialog.Location = new Point(petPanel.Location.X - dialog.Width, petPanel.Location.Y - dialog.Height);
-            }
-        }
-        private void panel1_MouseClick(object sender, MouseEventArgs e)
-        {
-        }
-
-        private void panel1_DoubleClick(object sender, EventArgs e)
-        {
-
-            dialog.Show();
-            dialog.LoadData();
-
         }
     }
 }

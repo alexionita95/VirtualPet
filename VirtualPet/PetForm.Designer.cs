@@ -1,4 +1,5 @@
-﻿namespace VirtualPet
+﻿
+namespace VirtualPet
 {
     partial class PetForm
     {
@@ -29,7 +30,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PetForm));
             this.petPanel = new System.Windows.Forms.Panel();
             this.animTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
@@ -37,13 +37,10 @@
             // petPanel
             // 
             this.petPanel.BackColor = System.Drawing.Color.DodgerBlue;
-            this.petPanel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("petPanel.BackgroundImage")));
-            this.petPanel.Location = new System.Drawing.Point(0, 0);
+            this.petPanel.Location = new System.Drawing.Point(12, 12);
             this.petPanel.Name = "petPanel";
             this.petPanel.Size = new System.Drawing.Size(40, 40);
             this.petPanel.TabIndex = 0;
-            this.petPanel.DoubleClick += new System.EventHandler(this.panel1_DoubleClick);
-            this.petPanel.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseClick);
             this.petPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseDown);
             this.petPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseMove);
             this.petPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseUp);
@@ -55,16 +52,17 @@
             // 
             // PetForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Magenta;
-            this.ClientSize = new System.Drawing.Size(1045, 496);
+            this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.petPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "PetForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "PetForm";
+            this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.Magenta;
             this.ResumeLayout(false);
 
