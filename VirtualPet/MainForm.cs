@@ -40,12 +40,12 @@ namespace VirtualPet
 
         public PetInfo GetPetInfo()
         {
-            return pet.Info;
+            return null;
         }
 
         public Point GetPetLocation()
         {
-            return pet.GetPetLocation();
+            return new Point();
         }
 
         public Rectangle GetPetBounds()
@@ -55,7 +55,7 @@ namespace VirtualPet
 
         public void SetPetLocation(Point p)
         {
-            pet.SetPetLocation(p);
+            
         }
 
         public void SpawnToy(Toy t)
@@ -79,7 +79,7 @@ namespace VirtualPet
 
         public Point GetScreenPetLocation()
         {
-            return pet.PetRealPosition;
+            return new Point();
         }
 
         public void SpawnDialog(UserControl dialog)

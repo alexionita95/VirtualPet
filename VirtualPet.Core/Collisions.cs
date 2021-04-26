@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Windows.Forms;
+
 namespace VirtualPet.Core
 {
 
@@ -24,13 +26,35 @@ namespace VirtualPet.Core
 
         public static bool isBetween(int value, int min, int max)
         {
+            if(min > max)
+            {
+                int temp = min;
+                min = max;
+                max = temp;
+            }
             if (min > value || max < value)
             {
                 return false;
             }
             return true;
         }
-
+        public static Point GetTopLeftPoint()
+        {
+            int x = 0;
+            int y = 0;
+            foreach(Screen s in Screen.AllScreens)
+            {
+                if(s.Bounds.X <x)
+                {
+                    x = s.Bounds.X;
+                }
+                if(s.Bounds.Y < y)
+                {
+                    y = s.Bounds.Y;
+                }
+            }
+            return new Point(x, y);
+        }
         public static Rectangle GetRectangleFromNative(NativeMethods.RECT rect)
         {
             return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
