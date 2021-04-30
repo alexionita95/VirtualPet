@@ -46,6 +46,7 @@ namespace VirtualPet.Core
         public List<string> Attributes { get; set; }
         public string State { get; set; }
         public IntPtr ParentHandle { get; set; }
+        public Size Size { get; set; }
 
         int BoundOffset = 5;
         public int Width = 40;
@@ -62,6 +63,7 @@ namespace VirtualPet.Core
 
             Attributes = new List<string>();
             State = States.Falling;
+            Size = new Size(Width, Width);
         }
         private void UpdateBounds()
         {

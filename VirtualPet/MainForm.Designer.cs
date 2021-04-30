@@ -29,9 +29,12 @@ namespace VirtualPet
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.spawnBtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.renderPanel = new System.Windows.Forms.Panel();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // spawnBtn
@@ -64,11 +67,26 @@ namespace VirtualPet
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // renderPanel
+            // 
+            this.renderPanel.BackColor = System.Drawing.Color.White;
+            this.renderPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.renderPanel.Location = new System.Drawing.Point(216, 12);
+            this.renderPanel.Name = "renderPanel";
+            this.renderPanel.Size = new System.Drawing.Size(917, 590);
+            this.renderPanel.TabIndex = 3;
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 16;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1145, 614);
+            this.Controls.Add(this.renderPanel);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.spawnBtn);
@@ -83,6 +101,8 @@ namespace VirtualPet
         private System.Windows.Forms.Button spawnBtn;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Panel renderPanel;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

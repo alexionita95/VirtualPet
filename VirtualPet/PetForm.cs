@@ -125,12 +125,13 @@ namespace VirtualPet
             StringBuilder sb = new StringBuilder(128);
             while (nextWindow != IntPtr.Zero)
             {
-                if (nextWindow == currentWindowHandle)
-                {
-                    return false;
-                }
+
                 if (NativeMethods.IsWindowVisible(nextWindow) && !NativeMethods.IsIconic(nextWindow) && nextWindow != Handle)
                 {
+                    if (nextWindow == currentWindowHandle)
+                    {
+                        return false;
+                    }
                     NativeMethods.GetWindowText(nextWindow, sb, 128);
                     NativeMethods.GetWindowRect(new System.Runtime.InteropServices.HandleRef(this, nextWindow), out rct);
                     CollisionDirection windowCollision = Collisions.CheckCollision(Collisions.GetRectangleFromNative(rctO), Collisions.GetRectangleFromNative(rct), CollisionDirection.All);
@@ -190,8 +191,13 @@ namespace VirtualPet
                 {
                     return true;
                 }
+                
                 NativeMethods.RECT rect = new NativeMethods.RECT();
                 NativeMethods.GetWindowRect(new System.Runtime.InteropServices.HandleRef(this, hWnd), out rect);
+                if(rect.Top < collider.Height)
+                {
+                    return true;
+                }
 
                 CollisionDirection collides = Collisions.CheckCollision(collider, Collisions.GetRectangleFromNative(rect), direction);
 
@@ -201,6 +207,7 @@ namespace VirtualPet
                     {
                         collided.Bounds = Collisions.GetRectangleFromNative(rect);
                         collided.Direction = collides;
+                        System.Diagnostics.Debug.WriteLine($"{sb}");
 
                     }
                 }
