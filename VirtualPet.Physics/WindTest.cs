@@ -10,7 +10,7 @@ namespace VirtualPet.Physics
     {
         public void UpdateForce(Body2 body, float dt)
         {
-            body.AddForce(new Math.Vectors.Vec2(2, 0).Mul(body.Mass));
+            body.AddForce(new Math.Vectors.Vec2(5, 0).Mul(body.Mass));
         }
     }
 }

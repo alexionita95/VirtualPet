@@ -14,6 +14,7 @@ namespace VirtualPet.Physics
         public Gravity2 Gravity { get; private set; }
         public int ImpulseIterations { get; set; } = 10;
 
+
         public List<CollisionManifold> collisions;
 
         public System2()

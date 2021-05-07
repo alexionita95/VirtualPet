@@ -143,9 +143,8 @@ namespace VirtualPet.Math.Geometry
 
             for (int i = 0; i < Vertices.Count; ++i)
             {
-                internalVertices[i].Sub(c);
+               // internalVertices[i].Sub(c);
             }
-            System.Diagnostics.Debug.WriteLine($"{c.X}, {c.Y}");
         }
         protected void SetBox(float hw, float hh)
         {
@@ -162,7 +161,7 @@ namespace VirtualPet.Math.Geometry
             Normals.Add(new Vec2(-1.0f, 0.0f));
             Initialize();
         }
-        Vec2 GetSupportPoint(Vec2 dir)
+        public Vec2 GetSupportPoint(Vec2 dir)
         {
             float best = float.MinValue;
             Vec2 result = new Vec2();
@@ -171,12 +170,10 @@ namespace VirtualPet.Math.Geometry
             {
                 Vec2 v = Vertices[i];
                 float projection = v.Dot(dir);
+                if (projection > best)
                 {
-                    if (projection > best)
-                    {
-                        result = new Vec2(v);
-                        best = projection;
-                    }
+                    result = new Vec2(v);
+                    best = projection;
                 }
             }
 

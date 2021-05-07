@@ -63,8 +63,8 @@ namespace VirtualPet.Math.Matrix
         public static Mat2 Rotation(float angleDegrees)
         {
             float radians = Utils.Radians(angleDegrees);
-            float cos = MathF.Cos(radians);
-            float sin = MathF.Sin(radians);
+            float cos = (float)System.Math.Cos(radians);
+            float sin = (float)System.Math.Sin(radians);
             return new Mat2(cos, -sin, sin, cos);
         }
     }
