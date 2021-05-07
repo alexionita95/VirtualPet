@@ -33,7 +33,7 @@ namespace VirtualPet.Math.Vectors
         protected void CalculateMagnitudeSquared()
         {
             internalMagnitudeSquared = 0;
-            for(int i=0;i<components.Length;++i)
+            for (int i = 0; i < components.Length; ++i)
             {
                 internalMagnitudeSquared += (components[i] * components[i]);
             }
@@ -59,106 +59,90 @@ namespace VirtualPet.Math.Vectors
             return result;
         }
 
-        protected Vec Add(float scalar)
+        protected void Add(float scalar)
         {
-            Vec result = Clone();
-            for(int i=0;i<result.components.Length;++i)
+            for (int i = 0; i < components.Length; ++i)
             {
-                result.components[i] += scalar;
+                components[i] += scalar;
             }
-            return result;
-        }
 
-        protected Vec Add(Vec v)
+        }
+        protected void Add(Vec v)
         {
-            Vec result;
             Vec operand;
             int size;
-            if(v.components.Length > components.Length)
+            if (components.Length > v.components.Length)
             {
-                result = v.Clone();
                 operand = this;
                 size = components.Length;
             }
             else
             {
-                result = Clone();
-                operand = v;
-                size = v.components.Length;
-            }
-            for(int i=0;i<size;++i)
-            {
-                result.components[i] += operand.components[i];
-            }
-            return result;
-        }
-
-        protected Vec Sub(float scalar)
-        {
-            Vec result = Clone();
-            for (int i = 0; i < result.components.Length; ++i)
-            {
-                result.components[i] -= scalar;
-            }
-            return result;
-        }
-
-        protected Vec Sub(Vec v)
-        {
-            Vec result;
-            Vec operand;
-            int size;
-            if (v.components.Length > components.Length)
-            {
-                result = v.Clone();
-                operand = this;
-                size = components.Length;
-            }
-            else
-            {
-                result = Clone();
                 operand = v;
                 size = v.components.Length;
             }
             for (int i = 0; i < size; ++i)
             {
-                result.components[i] -= operand.components[i];
+                components[i] += operand.components[i];
             }
-            return result;
         }
 
-        protected Vec Mul(float scalar)
+        protected void Sub(float scalar)
         {
-            Vec result = Clone();
-            for (int i = 0; i < result.components.Length; ++i)
+            for (int i = 0; i < components.Length; ++i)
             {
-                result.components[i] *= scalar;
+                components[i] -= scalar;
             }
-            return result;
         }
 
-        protected Vec Mul(Vec v)
+        protected void Sub(Vec v)
         {
-            Vec result;
             Vec operand;
             int size;
             if (v.components.Length > components.Length)
             {
-                result = v.Clone();
                 operand = this;
                 size = components.Length;
             }
             else
             {
-                result = Clone();
                 operand = v;
                 size = v.components.Length;
             }
             for (int i = 0; i < size; ++i)
             {
-                result.components[i] *= operand.components[i];
+                components[i] -= operand.components[i];
             }
-            return result;
+        }
+
+        protected void Mul(float scalar)
+        {
+            for (int i = 0; i < components.Length; ++i)
+            {
+                components[i] *= scalar;
+            }
+        }
+
+
+
+        protected void Mul(Vec v)
+        {
+            Vec operand;
+            int size;
+            if (v.components.Length > components.Length)
+            {
+                operand = this;
+                size = components.Length;
+            }
+            else
+            {
+                operand = v;
+                size = v.components.Length;
+            }
+            for (int i = 0; i < size; ++i)
+            {
+                components[i] *= operand.components[i];
+            }
         }
 
         protected Vec Div(float scalar)
@@ -194,9 +178,145 @@ namespace VirtualPet.Math.Vectors
             }
             return result;
         }
-        protected Vec Negate()
+        protected void Negate()
         {
-            return Mul(-1);
+            Mul(-1);
+        }
+
+        protected static Vec Add(Vec v, float scalar)
+        {
+            Vec result = v.Clone();
+            for (int i = 0; i < result.components.Length; ++i)
+            {
+                result.components[i] += scalar;
+            }
+            return result;
+        }
+
+        protected static Vec Add(Vec v1, Vec v2)
+        {
+            Vec result;
+            Vec operand;
+            int size;
+            if (v1.components.Length >= v2.components.Length)
+            {
+                result = v1.Clone();
+                operand = v1;
+                size = v1.components.Length;
+            }
+            else
+            {
+                result = v2.Clone();
+                operand = v2;
+                size = v2.components.Length;
+            }
+            for (int i = 0; i < size; ++i)
+            {
+                result.components[i] += operand.components[i];
+            }
+            return result;
+        }
+
+        protected static Vec Sub(Vec v, float scalar)
+        {
+            Vec result = v.Clone();
+            for (int i = 0; i < result.components.Length; ++i)
+            {
+                result.components[i] -= scalar;
+            }
+            return result;
+        }
+
+        protected static Vec Sub(Vec v1, Vec v2)
+        {
+            Vec result;
+            Vec operand;
+            int size;
+            if (v1.components.Length >= v2.components.Length)
+            {
+                result = v1.Clone();
+                operand = v1;
+                size = v1.components.Length;
+            }
+            else
+            {
+                result = v2.Clone();
+                operand = v2;
+                size = v2.components.Length;
+            }
+            for (int i = 0; i < size; ++i)
+            {
+                result.components[i] -= operand.components[i];
+            }
+            return result;
+        }
+
+        protected static Vec Mul(Vec v, float scalar)
+        {
+            Vec result = v.Clone();
+            for (int i = 0; i < result.components.Length; ++i)
+            {
+                result.components[i] *= scalar;
+            }
+            return result;
+        }
+
+        protected static Vec Mul(Vec v1, Vec v2)
+        {
+            Vec result;
+            Vec operand;
+            int size;
+            if (v1.components.Length > v2.components.Length)
+            {
+                result = v1.Clone();
+                operand = v2;
+                size = v2.components.Length;
+            }
+            else
+            {
+                result = v2.Clone();
+                operand = v1;
+                size = v1.components.Length;
+            }
+            for (int i = 0; i < size; ++i)
+            {
+                result.components[i] *= operand.components[i];
+            }
+            return result;
+        }
+
+        protected static Vec Div(Vec v, float scalar)
+        {
+            Vec result = v.Clone();
+            for (int i = 0; i < result.components.Length; ++i)
+            {
+                result.components[i] /= scalar;
+            }
+            return result;
+        }
+
+        protected static Vec Div(Vec v1, Vec v2)
+        {
+            Vec result;
+            Vec operand;
+            int size;
+            if (v1.components.Length > v2.components.Length)
+            {
+                result = v1.Clone();
+                operand = v2;
+                size = v2.components.Length;
+            }
+            else
+            {
+                result = v2.Clone();
+                operand = v1;
+                size = v1.components.Length;
+            }
+            for (int i = 0; i < size; ++i)
+            {
+                result.components[i] /= operand.components[i];
+            }
+            return result;
         }
     }
 }

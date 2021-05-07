@@ -8,7 +8,7 @@ namespace VirtualPet.Math.Vectors
         public float Y { get { return components[1]; } set { components[1] = value; CalculateMagnitudeSquared(); } }
         public Vec2() : base(new float[] { 0, 0 })
         {
-            
+
         }
         public Vec2(float x, float y) : base(new float[] { x, y })
         {
@@ -22,46 +22,46 @@ namespace VirtualPet.Math.Vectors
         {
             return ToVec2(base.Normalize());
         }
-        
 
-        public new Vec2 Add(float scalar)
+
+        public new void Add(float scalar)
         {
-            return base.Add(scalar) as Vec2;
+            base.Add(scalar);
         }
 
-        public Vec2 Add(Vec2 v)
+        public void Add(Vec2 v)
         {
-            return ToVec2(base.Add(v));
+            base.Add(v);
         }
 
-        public new Vec2 Sub(float scalar)
+        public new void Sub(float scalar)
         {
-            return ToVec2(base.Sub(scalar));
+            base.Sub(scalar);
         }
 
-        public Vec2 Sub(Vec2 v)
+        public void Sub(Vec2 v)
         {
-            return ToVec2(base.Sub(v));
+            base.Sub(v);
         }
 
-        public new Vec2 Mul(float scalar)
+        public new void Mul(float scalar)
         {
-            return ToVec2(base.Mul(scalar));
+            base.Mul(scalar);
         }
 
-        public Vec2 Mul(Vec2 v)
+        public void Mul(Vec2 v)
         {
-            return ToVec2(base.Mul(v));
+            base.Mul(v);
         }
 
-        public new Vec2 Div(float scalar)
+        public new void Div(float scalar)
         {
-            return ToVec2(base.Div(scalar));
+            base.Div(scalar);
         }
 
-        public  Vec2 Div(Vec2 v)
+        public void Div(Vec2 v)
         {
-            return ToVec2(base.Div(v));
+            base.Div(v);
         }
 
 
@@ -76,15 +76,16 @@ namespace VirtualPet.Math.Vectors
             return (X * vector.X + Y * vector.Y);
         }
 
-        public Vec2 RotateAround(Vec2 origin, float angleDeg)
+        public void RotateAround(Vec2 origin, float angleDeg)
         {
             float x = X - origin.X;
             float y = Y - origin.Y;
             float angleRad = Utils.Radians(angleDeg);
             float cos = MathF.Cos(angleRad);
             float sin = MathF.Sign(angleRad);
-            Vec2 result = new Vec2(x * cos - y * sin, x * sin + y * cos);
-            return result.Add(origin);
+            X = x * cos - y * sin;
+            Y = x * sin + y * cos;
+            Add(origin);
         }
         public void Zero()
         {
@@ -92,9 +93,9 @@ namespace VirtualPet.Math.Vectors
             Y = 0;
         }
 
-        public new Vec2 Negate()
+        public new void Negate()
         {
-            return ToVec2(base.Negate());
+            base.Negate();
         }
         public static Vec2 Cross(float a, Vec2 v)
         {
@@ -111,6 +112,47 @@ namespace VirtualPet.Math.Vectors
             float y = v2.Y - v1.Y;
             return (x * x + y * y);
         }
+
+        public static Vec2 Add(Vec2 v, float scalar)
+        {
+            return ToVec2(Vec.Add(v, scalar));
+        }
+
+        public static Vec2 Add(Vec2 v1, Vec2 v2)
+        {
+            return ToVec2(Vec.Add(v1, v2));
+        }
+
+        public static Vec2 Sub(Vec2 v, float scalar)
+        {
+            return ToVec2(Vec.Sub(v, scalar));
+        }
+
+        public static Vec2 Sub(Vec2 v1, Vec2 v2)
+        {
+            return ToVec2(Vec.Sub(v1, v2));
+        }
+
+        public static Vec2 Mul(Vec2 v, float scalar)
+        {
+            return ToVec2(Vec.Mul(v, scalar));
+        }
+
+        public static Vec2 Mul(Vec2 v1, Vec2 v2)
+        {
+            return ToVec2(Vec.Mul(v1, v2));
+        }
+
+        public static Vec2 Div(Vec2 v, float scalar)
+        {
+            return ToVec2(Vec.Div(v, scalar));
+        }
+
+        public static Vec2 Div(Vec2 v1, Vec2 v2)
+        {
+            return ToVec2(Vec.Div(v1, v2));
+        }
+
         public static Vec2 ToVec2(Vec value)
         {
             return new Vec2(value[0], value[1]);

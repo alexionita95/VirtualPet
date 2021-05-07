@@ -76,8 +76,8 @@ namespace VirtualPet.Math.Geometry
                     }
 
 
-                    Vec2 e1 = vertices[nextHullIndex].Sub(vertices[hull[count]]);
-                    Vec2 e2 = vertices[i].Sub(vertices[hull[count]]);
+                    Vec2 e1 = Vec2.Sub(vertices[nextHullIndex], vertices[hull[count]]);
+                    Vec2 e2 = Vec2.Sub(vertices[i], vertices[hull[count]]);
                     float c = e1.Cross(e2);
                     if (c < 0.0f)
                     {
@@ -107,7 +107,7 @@ namespace VirtualPet.Math.Geometry
             for (int i = 0; i < Vertices.Count; ++i)
             {
                 int j = i < Vertices.Count ? i + i : 0;
-                Vec2 face = Vertices[j].Sub(Vertices[i]);
+                Vec2 face = Vec2.Sub(Vertices[j], Vertices[i]);
                 if (face.LengthSquared <= 0)
                 {
                     return;
@@ -133,17 +133,17 @@ namespace VirtualPet.Math.Geometry
                 float triangleArea = 0.5f * D;
                 Area += triangleArea;
 
-                c = c.Add(p1.Add(p2).Mul(triangleArea * k_inv3));
+                c.Add(Vec2.Mul(Vec2.Add(p1, p2),triangleArea * k_inv3));
 
                 float x2 = p1.X * p1.X + p2.X * p1.X + p2.X * p2.X;
                 float y2 = p1.Y * p1.Y + p2.Y * p1.Y + p2.Y * p2.Y;
                 I += (0.25f * k_inv3 * D) * (x2 + y2);
             }
-            c = c.Mul(1.0f / Area);
+            c.Mul(1.0f / Area);
 
             for (int i = 0; i < Vertices.Count; ++i)
             {
-               // internalVertices[i].Sub(c);
+                // internalVertices[i].Sub(c);
             }
         }
         protected void SetBox(float hw, float hh)
